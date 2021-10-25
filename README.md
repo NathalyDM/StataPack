@@ -38,6 +38,7 @@ boxline.plot<-function(data,x,y,xlab.caption,ylab.caption,subtitle.caption,title
               subtitle = subtitle.caption)
 }
 ```
+![time_fligth](https://user-images.githubusercontent.com/40121093/138725392-85311c4e-6339-4318-8da9-aff3855bdb9a.png)
 
 ### One factor Plot Function 
 ```bash
@@ -83,8 +84,9 @@ ggplot(data, aes(x, y,group = x, color = color.var)) +
   scale_color_brewer(palette = "Set1")  
 }
 ```
+![gitimage2](https://user-images.githubusercontent.com/40121093/138725451-23622fb1-2780-4c11-a7f1-fad808dd6bc2.png)
 
-### One factor Plot Function 
+### Two factor Plot Function 
 ```bash
 twofactor.plot<-function(data,x,y,color.var,title.var,x.label,lengend.name){
 
@@ -133,6 +135,8 @@ twofactor.plot<-function(data,x,y,color.var,title.var,x.label,lengend.name){
   theme_bw()
 }
 ```
+![gitimage1](https://user-images.githubusercontent.com/40121093/138725498-8f7d203e-4810-4d62-b6cb-da14b9aa2bed.png)
+
 
 ### Paretto plot 
 ```bash
@@ -163,3 +167,6 @@ paretto<-function(res.sum,names.coef){
   return(paretto)
 }
 ```
+
+![gitparetto](https://user-images.githubusercontent.com/40121093/138725523-c2bd8007-f5b5-4669-bc22-8acea78b1236.png)
+
