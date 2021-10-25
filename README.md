@@ -1,171 +1,86 @@
 # Final-Project-Biostat
 
-This package content the next functions with serve to plot the next graphs 
+Packages required
+```bash
+library(ggplot2)
+library(tidyverse)
+library(rstatix)
+library(ggpubr)
+library(scales)
+library(ggsci)
+library(flextable)
+library(BiostatSupBiotech)
+```
 
 ### Boxline plot Function 
 ```bash
-boxline.plot<-function(data,x,y,xlab.caption,ylab.caption,subtitle.caption,title.caption){
-  
-  ##### Input parameters
-  # data: data frame 
-  # x   : x axis 
-  # y   : y axis 
-  # xlab.caption: x label
-  # ylab.caption: y label 
-  # subtitle.caption : Caption for the subtitle
-  # title.caption : Caption for the title
-  
-  
-  ggplot(data,aes(x=x,y=y)) +
-  geom_boxplot()+
-  geom_jitter(shape=16, position=position_jitter(0.2),alpha=0.7)+
-  theme(panel.background = element_rect(fill = "#ffffff"),
-          panel.grid.major = element_line(colour="#f0f0f0"),
-          panel.grid.minor =element_line(colour="#f0f0f0"),
-          panel.border = element_rect(fill = "transparent", 
-                                      color = "#f0f0f0",         
-                                      size = 1))+
-  stat_summary(fun = mean, na.rm = TRUE, aes(group = 1),
-               geom = "line", color = "blue", 
-               size = 0.5) +
-  stat_summary(fun = mean, na.rm = TRUE, 
-               geom = "point", shape = "diamond",
-               size = 2, color = "blue", 
-               position = position_dodge(width = .3))+
-  xlab(xlab.caption)+
-  ylab(ylab.caption)+
-    labs(title = title.caption,
-              subtitle = subtitle.caption)
-}
+#Change the path of the file
+data <- read.csv("data.csv", header=TRUE, sep=";") # Load the data, modify function if required
+colnames(data)[1]<-c('ID')
+data
+data$Rotor.length_c<- factor(data$Rotor.length,labels=c(-1,0,1))
+data$Base.length_c<- factor(data$Base.length,labels=c(-1,0,1))
+data$Base.width_c<- factor(data$Base.width,labels=c(-1,0,1))
+data
+summary(data$Time[data$ID==1])
+
+data$ID_c<-as.factor(rep(1:10,3))
+
+boxline.plot(data,data$ID_c,data$Time,'Helicopter Number','Time of Flight (seconds)',"Box and Mean plot of the different in function of the Helicopter Number", "Graphical Representation of Data")
 ```
 ![time_fligth](https://user-images.githubusercontent.com/40121093/138725392-85311c4e-6339-4318-8da9-aff3855bdb9a.png)
 
 ### One factor Plot Function 
 ```bash
-onefactor.plot<-function(data,x,y,color.var,title.var,x.label,y.label){
+Mean.Rotor.length<-by(data$Time,data$Rotor.length_c,mean)
+Mean.Base_Length<-by(data$Time,data$Base.length_c,mean)
+Mean.Base_Width<-by(data$Time,data$Base.width_c,mean)
 
-  ##### Input parameters
-  # data: data frame 
-  # x   : x axis 
-  # y   : y axis 
-  # color.var   : variable to classify
-  # x.label: x label
-  # y.label: y label
+data$Rep<-as.factor(as.integer(data$Repetition))
+data$Rotor.length_c2<- factor(data$Rotor.length_c,labels=c(-1,1), exclude = 0)
+data$Base.length_c2<- factor(data$Base.length_c,labels=c(-1,1), exclude = 0)
+data$Base.width_c2<- factor(data$Base.width_c,labels=c(-1,1), exclude = 0)
 
-  lm<-lm(y~x)
-  print('summary')
-  print(summary(lm))
-  print('R-squared')
-  print(summary(lm)$r.squared)
-    
-ggplot(data, aes(x, y,group = x, color = color.var)) +
-  geom_point(position = position_jitterdodge(jitter.width = .2, 
-                                             dodge.width = .7), 
-             alpha = .9) +
-  stat_summary(fun = mean, na.rm = TRUE, aes(group = 1),
-               geom = "line", color = "black", 
-               size = .3) +
-  stat_summary(fun = mean, na.rm = TRUE, 
-               geom = "point", shape = "diamond",
-               size = 2, color = "black", 
-               position = position_dodge(width = .3)) +
-  stat_summary(fun.data = mean_cl_normal, na.rm = TRUE, 
-               geom = "errorbar", width = .2, color = "black",
-               position = position_dodge(width = .3)) +
-  theme(panel.background = element_rect(fill = "#ffffff"),
-        panel.grid.major = element_line(colour="#f0f0f0"),
-        panel.grid.minor =element_line(colour="#f0f0f0"),
-        panel.border = element_rect(fill = "transparent", 
-                                    color = "#f0f0f0",            
-                                    size = 1))+
-  labs(title = title.var,
-              subtitle = "Plot of two-factor interactions",
-              x = x.label, y = y.label, color="Repetition")+
-  scale_color_brewer(palette = "Set1")  
-}
+data2<-na.omit(data)
+data2$Repetition<-as.factor(data2$Repetition)
+onefactor.plot(data2,data2$Rotor.length_c2,data2$Time,data2$Repetition,"Effect of Rotor Length","Rotor Length (cm)","Flight Time (seconds)")
+onefactor.plot(data2,data2$Base.length_c2,data2$Time,data2$Rep,"Effect of Base Length","Base Length (cm)","Flight Time (seconds)")
+onefactor.plot(data2,data2$Base.width_c2,data2$Time,data2$Rep,"Effect of Base Width","Base Width (cm)","Flight Time (seconds)")
 ```
 ![gitimage2](https://user-images.githubusercontent.com/40121093/138725451-23622fb1-2780-4c11-a7f1-fad808dd6bc2.png)
 
 ### Two factor Plot Function 
 ```bash
-twofactor.plot<-function(data,x,y,color.var,title.var,x.label,lengend.name){
-
-
-  ##### Input parameters
-  # data: data frame 
-  # x   : x axis 
-  # y   : y axis 
-  # title.var   : Title
-  # legend.name: name of the legend
-  # x.label: x label
-
-
-  minmaxvals <- range(as.integer(as.character(x)))
-                      
-  print(levels(color.var)[1])
-  print(summary(lm(y[color.var==levels(color.var)[1]]~x[color.var==levels(color.var)[1]])))
-  
-  print(levels(color.var)[2])
-  print(summary(lm(y[color.var==levels(color.var)[2]]~x[color.var==levels(color.var)[2]])))
-  
-
-  ggplot(data2,aes(x,y,linetype=color.var, 
-                 color = color.var))+
-  stat_summary(fun = mean, na.rm = TRUE, aes(group = color.var),
-               geom = "line", color = "black", 
-               size = .3)+
-  geom_point(data=subset(data2,x %in% minmaxvals),
-               aes(shape=color.var))+ 
-  stat_summary(fun = mean, na.rm = TRUE, 
-               geom = "point",  shape="diamond",
-               size = 2, color = "black",
-               position = position_dodge(width = 0)) +
-  stat_summary(fun.data = mean_cl_normal, na.rm = TRUE, 
-               geom = "errorbar", width = .2, color = "black")+
-  theme(panel.background = element_rect(fill = "#ffffff"),
-        panel.grid.major = element_line(colour="#f0f0f0"),
-        panel.grid.minor =element_line(colour="#f0f0f0"),
-        panel.border = element_rect(fill = "transparent", 
-                                    color = "#f0f0f0", 
-                                    size = 1))+
-  labs(title = title.var,
-       subtitle = "Plot of two-factor interactions",
-       x = x.label, y = "Flight Time (seconds)",
-       linetype=lengend.name, color=lengend.name)+
-  theme_bw()
-}
+twofactor.plot(data2,data2$Rotor.length_c2,data2$Time, data2$Base.width_c2,'Effect of Rotor Length and Base Width in y Flight','Rotor Length (cm)',"Base Width (cm)")
+twofactor.plot(data2,data2$Base.length_c2,data2$Time, data2$Base.width_c2,'Effect of Base Length and Base Width in y Flight','Base Length (cm)',"Base Width (cm)")
+twofactor.plot(data2,data2$Rotor.length_c2,data2$Time, data2$Base.width_c2,'Effect of Rotor Length and Base Length in y Flight','Rotor Length (cm)',"Base Length (cm)")
 ```
 ![gitimage1](https://user-images.githubusercontent.com/40121093/138725498-8f7d203e-4810-4d62-b6cb-da14b9aa2bed.png)
 
 
 ### Paretto plot 
+Regression Analysis 
 ```bash
-paretto<-function(res.sum,names.coef){
+res <-lm(data = data,Time~Rotor.length+Base.length+Base.width+
+           Rotor.length*Base.length+
+           Base.length*Base.width+
+           Rotor.length*Base.width)
+res.sum<-summary(res)
+res.sum
+```
+Plot
+```bash
+res <-lm(data = data,Time~Rotor.length+Base.length+Base.width+
+           Rotor.length*Base.length+
+           Base.length*Base.width+
+           Rotor.length*Base.width)
+res.sum<-summary(res)
 
-  ##### Input parameters
-  # res.sum: summary of linear regression 
-     # names.coef: names of coefficients
-
-  paretto<-list()
-  res.df<-data.frame(Coeficients=abs(res.sum$coefficients[,'Estimate']),
-                   p.value=res.sum$coefficients[,'Pr(>|t|)'], 
-                   names=as.factor(names.coef))
-  res.df.filtered<-res.df[-1,]
-  res.df.filtered$names<-factor(res.df.filtered$names,
-                                levels= res.df.filtered$names[order(res.df.filtered$Coeficients)])
-  paretto$plot<-ggplot(res.df.filtered,aes(x=Coeficients,y=names,fill=p.value))+
-    geom_col() + 
-    scale_fill_gradient(low="blue", high="red")+
-    labs(Title='Pareto of the effects',
-         x='Coeficients',y='Variable',fill="p-value")+
-      theme(panel.background = element_rect(fill = "#ffffff"),
-          panel.grid.major = element_line(colour="#f0f0f0"),
-          panel.grid.minor =element_line(colour="#f0f0f0"),
-          panel.border = element_rect(fill = "transparent", 
-                                      color = "#f0f0f0", 
-                                      size = 1))
-  return(paretto)
-}
+names.coef<-c('Intercept', 'Rotor Length', 'Base Length', 
+                           'Base width','Rotor Length: Base Length',
+                           'Base length: Base Width','Rotor length: Base width')
+paretto.r<-paretto(res.sum,names.coef)
+paretto.r$plot
 ```
 
 ![gitparetto](https://user-images.githubusercontent.com/40121093/138725523-c2bd8007-f5b5-4669-bc22-8acea78b1236.png)
