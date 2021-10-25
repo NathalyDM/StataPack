@@ -1,6 +1,14 @@
 # Final-Project-Biostat
 
-Packages required
+
+## How to install 
+R package with utility functions to help with data analysis
+you can install this through use devtools:
+```bash
+devtools::install_github("NathalyDM/Final-Project-Biostat", upgrade_dependencies = FALSE)
+```
+
+### Packages required
 ```bash
 library(ggplot2)
 library(tidyverse)
